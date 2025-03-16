@@ -8,12 +8,12 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^2.1.2",
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/slider": "4.5.5",
     "@react-navigation/bottom-tabs": "latest",
     "@react-navigation/native": "latest",
     "@react-navigation/native-stack": "latest",
-    "expo": "~52.0.37",
+    "expo": "~52.0.38",
     "expo-linear-gradient": "latest",
     "expo-status-bar": "~2.0.1",
     "lucide-react-native": "latest",

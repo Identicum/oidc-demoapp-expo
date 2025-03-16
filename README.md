@@ -19,17 +19,27 @@ const config = {
 };
 ```
 
-npm install
+## Pre-requisites
+Android Studio
+yarn
+npx
+
+
+## Steps
+
+yarn install
 
 ## Android
 npx expo run:android
-
 
 ## iOS
 npx expo run:ios
 
 
-
 npx expo prebuild --platform android
 npx expo prebuild --platform ios
 
+
+## Upload to Play Store
+
+https://docs.expo.dev/submit/android/

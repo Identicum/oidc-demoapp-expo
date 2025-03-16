@@ -1,13 +1,18 @@
 {
   "expo": {
     "name": "oidc-demoapp-expo",
-    "slug": "snack-1b3410dd-f9b6-4983-8888-eae809df589f",
+    "slug": "oidc-demoapp-expo",
     "version": "1.0.0",
     "ios": {
       "bundleIdentifier": "com.identicum.demo.mobile"
     },
     "android": {
       "package": "com.identicum.demo.mobile"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bad934a5-d767-447d-a254-c59906f37c61"
+      }
     }
   }
 }
