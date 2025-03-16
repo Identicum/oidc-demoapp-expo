@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "oidc-demoapp-expo",
+    "slug": "snack-1b3410dd-f9b6-4983-8888-eae809df589f",
+    "version": "1.0.0",
+    "ios": {
+      "bundleIdentifier": "com.identicum.demo.mobile"
+    },
+    "android": {
+      "package": "com.identicum.demo.mobile"
+    }
+  }
+}
