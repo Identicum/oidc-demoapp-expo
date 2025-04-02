@@ -8,17 +8,17 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.24.0",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/slider": "4.5.5",
     "@react-navigation/bottom-tabs": "latest",
     "@react-navigation/native": "latest",
     "@react-navigation/native-stack": "latest",
-    "expo": "~52.0.38",
+    "expo": "~52.0.42",
     "expo-linear-gradient": "latest",
     "expo-status-bar": "~2.0.1",
     "lucide-react-native": "latest",
     "react": "18.3.1",
-    "react-native": "0.76.7",
+    "react-native": "0.76.8",
     "react-native-app-auth": "latest",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-keychain": "^9.2.3",
@@ -35,5 +35,15 @@
   },
   "private": true,
   "name": "oidc-demoapp-expo",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "expo": {
+    "doctor": {
+        "reactNativeDirectoryCheck": {
+            "exclude": [
+                "lucide-react-native",
+                "react-native-app-auth"
+            ]
+        }
+    }
+  }
 }

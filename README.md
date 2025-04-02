@@ -35,10 +35,6 @@ npx expo run:android
 npx expo run:ios
 
 
-npx expo prebuild --platform android
-npx expo prebuild --platform ios
-
-
 ## Upload to Play Store 
 
 https://docs.expo.dev/submit/android/
