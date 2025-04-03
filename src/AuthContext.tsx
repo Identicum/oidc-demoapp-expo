@@ -1,11 +1,10 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
+import { AppState, AppStateStatus, DeviceEventEmitter } from 'react-native';
 import authService from './authService';
 import { AuthContextType } from './types';
-import { NativeEventEmitter } from 'react-native';
 
 // Create an event emitter for authentication events
-export const authEvents = new NativeEventEmitter();
+export const authEvents = DeviceEventEmitter;
 export const SESSION_EXPIRED_EVENT = 'sessionExpired';
 
 const AuthContext = createContext<AuthContextType | null>(null);
