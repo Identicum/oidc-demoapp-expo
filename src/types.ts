@@ -13,6 +13,7 @@ export interface AuthConfig {
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
+  idToken?: string;
   accessTokenExpirationDate: number;
   refreshTokenExpirationDate: number;
 }

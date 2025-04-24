@@ -20,7 +20,7 @@ const REFRESH_EXPIRY_KEY = 'auth.refreshExpiry';
 export const KEYCHAIN_OPTIONS: Keychain.Options = {
   accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY_OR_DEVICE_PASSCODE,
   accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-  storage: Keychain.STORAGE_TYPE.AES_GCM_NO_AUTH,
+  storage: Keychain.STORAGE_TYPE.AES_GCM,
 };
 
 // Store tokens securely
