@@ -39,5 +39,4 @@ export interface AuthContextType {
   userToken: string | null;
   login: () => Promise<void>;
   logout: () => Promise<void>;
-  getAccessToken: () => Promise<string | null>;
 }

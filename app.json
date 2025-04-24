@@ -4,7 +4,8 @@
     "slug": "oidc-demoapp-expo",
     "version": "1.0.0",
     "ios": {
-      "bundleIdentifier": "com.identicum.demo.mobile"
+      "bundleIdentifier": "com.identicum.demo.mobile",
+      "appleTeamId": "4JKAN8BCWN"
     },
     "android": {
       "package": "com.identicum.demo.mobile"

@@ -17,7 +17,7 @@ const TOKEN_EXPIRY_KEY = 'auth.tokenExpiry';
 const REFRESH_EXPIRY_KEY = 'auth.refreshExpiry';
 
 // SecureStore options for AES-GCM encryption
-const KEYCHAIN_OPTIONS: Keychain.Options = {
+export const KEYCHAIN_OPTIONS: Keychain.Options = {
   accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY_OR_DEVICE_PASSCODE,
   accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
   storage: Keychain.STORAGE_TYPE.AES_GCM_NO_AUTH,
@@ -25,6 +25,7 @@ const KEYCHAIN_OPTIONS: Keychain.Options = {
 
 // Store tokens securely
 const storeTokens = async (authResult: AuthResult): Promise<boolean> => {
+  console.info('Storing tokens:', authResult);
   try {
     // Prepare credentials object with both tokens
     const credentials: KeychainCredentials = {
@@ -57,6 +58,7 @@ const storeTokens = async (authResult: AuthResult): Promise<boolean> => {
 
 // Get tokens and check expiration
 const getTokens = async (): Promise<AuthTokens | null> => {
+  console.info('Getting tokens');
   try {
     // Get expiration timestamps
     const accessExpiryStr = await AsyncStorage.getItem(TOKEN_EXPIRY_KEY);
@@ -77,13 +79,6 @@ const getTokens = async (): Promise<AuthTokens | null> => {
       if (newTokens) {
         return newTokens;
       }
-      return null;
-    }
-    
-    // Only check refresh token if access token is still valid
-    if (now >= refreshExpiry) {
-      // Refresh token expired, user needs to login again
-      await clearTokens();
       return null;
     }
     
@@ -111,30 +106,24 @@ const getTokens = async (): Promise<AuthTokens | null> => {
 
 // Refresh tokens
 const refreshTokens = async (): Promise<AuthTokens | null> => {
-  try {
-    // Get credentials from keychain
-    const credentialsResult = await Keychain.getGenericPassword();
-    
-    if (!credentialsResult) {
-      return null;
-    }
-    
-    // Parse the stored JSON data
-    const credentials = JSON.parse(credentialsResult.password) as KeychainCredentials;
-    
+  console.info('Refreshing tokens');
+  try {   
     // Get refresh token expiration
     const refreshExpiryStr = await AsyncStorage.getItem(REFRESH_EXPIRY_KEY);
-    if (!refreshExpiryStr) {
+      if (!refreshExpiryStr || Date.now() >= parseInt(refreshExpiryStr, 10)) {
       await clearTokens();
       return null;
     }
-    
-    const refreshExpiry = parseInt(refreshExpiryStr, 10);
-    if (Date.now() >= refreshExpiry) {
-      // Refresh token expired, can't refresh
-      await clearTokens();
-      return null;
+
+    // Get credentials from keychain
+    const credentialsResult = await Keychain.getGenericPassword();
+
+    if (!credentialsResult) {
+        return null;
     }
+
+    // Parse the stored JSON data
+    const credentials = JSON.parse(credentialsResult.password) as KeychainCredentials;
     
     // Perform token refresh
     const refreshedState = await refresh(config, {
@@ -161,6 +150,7 @@ const refreshTokens = async (): Promise<AuthTokens | null> => {
 
 // Clear all tokens
 const clearTokens = async (): Promise<boolean> => {
+  console.info('Clearing tokens');
   try {
     await Keychain.resetGenericPassword();
     await AsyncStorage.removeItem(TOKEN_EXPIRY_KEY);
@@ -174,6 +164,7 @@ const clearTokens = async (): Promise<boolean> => {
 
 // Login
 const login = async (): Promise<AuthResult | null> => {
+  console.info('Logging in');
   try {
     const authState = await authorize(config);
     await storeTokens(authState);
@@ -186,6 +177,7 @@ const login = async (): Promise<AuthResult | null> => {
 
 // Logout
 const logout = async (): Promise<boolean> => {
+  console.info('Logging out');
   try {
     // Get credentials from keychain
     const credentialsResult = await Keychain.getGenericPassword();

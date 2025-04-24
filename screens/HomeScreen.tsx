@@ -44,7 +44,7 @@ const HomeScreen: React.FC = () => {
       try {
         setLoading(true);
         // Get tokens from the secure storage via auth context
-        const tokens = await authService.refreshTokens();
+        const tokens = await authService.getTokens();
 
         if (tokens) {
           setAuthData({
