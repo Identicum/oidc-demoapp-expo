@@ -20,9 +20,9 @@ const config = {
 ```
 
 ## Pre-requisites 
-Android Studio
-yarn
-npx
+- Android Studio / Xcode
+- yarn
+- npx
 
 
 ## Steps 
