@@ -28,10 +28,10 @@ npx
 ## Steps 
 yarn install
 
-## Android 
+### Android 
 npx expo run:android
 
-## iOS 
+### iOS 
 npx expo run:ios
 
 
