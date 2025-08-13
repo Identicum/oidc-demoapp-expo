@@ -37,4 +37,4 @@ jobs:
         run: EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas build --platform android --profile production --non-interactive
 
       - name: Submit to Google Play
-        run: EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit --platform android --profile production --non-interactive
+        run: EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit --platform android --profile production --latest --non-interactive
