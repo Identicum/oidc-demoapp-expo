@@ -1,0 +1,39 @@
+name: Build and Upload to Google Play
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Authenticate with Expo
+        run: eas whoami || eas login --token ${{ secrets.EXPO_ACCESS_TOKEN }}
+
+      - name: Decode and save Google service account key
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 -d > google-service-account.json
+
+      - name: Build APK for Production
+        run: eas build --platform android --profile production --non-interactive
+
+      - name: Submit to Google Play
+        run: eas submit --platform android --profile production --non-interactive

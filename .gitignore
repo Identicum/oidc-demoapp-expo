@@ -39,3 +39,15 @@ yarn-error.*
 .vscode
 
 *.aab
+
+terraform/terraform.tfvars
+.DS_Store
+.terraform*
+terraform.tfstate*
+*_secrets.tfvars
+/*/terraform_import.log
+/*/terraform_plan.log
+/*/terraform_compare.log
+.idea/
+
+google-service-account.json
