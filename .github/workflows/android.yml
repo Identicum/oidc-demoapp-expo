@@ -18,13 +18,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm
+          cache: yarn
 
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          token: ${{ secrets.EXPO_ACCESS_TOKEN }}
 
       - name: Install dependencies
         run: yarn install --immutable --immutable-cache --check-cache
@@ -34,7 +34,7 @@ jobs:
           echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 -d > google-service-account.json
 
       - name: Build APK for Production
-        run: eas build --platform android --profile production --non-interactive
+        run: EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas build --platform android --profile production --non-interactive
 
       - name: Submit to Google Play
-        run: eas submit --platform android --profile production --non-interactive
+        run: EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit --platform android --profile production --non-interactive
