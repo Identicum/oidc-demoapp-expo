@@ -7,42 +7,42 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "1.23.1",
-    "@react-native-community/slider": "4.5.5",
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-community/slider": "4.5.6",
     "@react-navigation/bottom-tabs": "~7.2.0",
     "@react-navigation/native": "~7.0.14",
     "@react-navigation/native-stack": "~7.2.0",
-    "expo": "~52.0.47",
-    "expo-linear-gradient": "~14.0.2",
-    "expo-status-bar": "~2.0.1",
+    "expo": "~53.0.22",
+    "expo-linear-gradient": "~14.1.5",
+    "expo-status-bar": "~2.2.3",
     "lucide-react-native": "~0.476.0",
-    "react": "18.3.1",
-    "react-native": "0.76.9",
+    "react": "19.0.0",
+    "react-native": "0.79.6",
     "react-native-app-auth": "~8.0.2",
-    "react-native-gesture-handler": "~2.20.2",
+    "react-native-gesture-handler": "~2.24.0",
     "react-native-keychain": "9.2.3",
-    "react-native-reanimated": "~3.16.1",
-    "react-native-safe-area-context": "4.12.0",
-    "react-native-screens": "~4.4.0",
-    "react-native-svg": "15.8.0",
+    "react-native-reanimated": "~3.17.5",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.11.1",
+    "react-native-svg": "15.11.2",
     "sonner-native": "~0.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@types/react": "~18.3.12",
-    "typescript": "^5.3.3"
+    "@types/react": "~19.0.14",
+    "typescript": "^5.8.3"
   },
   "private": true,
   "name": "oidc-demoapp-expo",
   "version": "1.0.0",
   "expo": {
     "doctor": {
-        "reactNativeDirectoryCheck": {
-            "exclude": [
-                "lucide-react-native",
-                "react-native-app-auth"
-            ]
-        }
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "lucide-react-native",
+          "react-native-app-auth"
+        ]
+      }
     }
   }
 }
