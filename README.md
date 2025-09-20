@@ -14,6 +14,10 @@ const config = {
     clientId: 'oidc-demoapp-expo',
     redirectUrl: 'com.identicum.demo.mobile.auth:/callback',
     scopes: ['openid', 'profile', 'email'],
+    usePKCE: true,
+    additionalParameters: {
+        'claropay_device_id': deviceId
+    }
     // only for testing purposes
     dangerouslyAllowInsecureHttpRequests: true
 };
