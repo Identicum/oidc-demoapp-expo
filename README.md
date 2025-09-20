@@ -14,6 +14,10 @@ const config = {
     clientId: 'oidc-demoapp-expo',
     redirectUrl: 'com.identicum.demo.mobile.auth:/callback',
     scopes: ['openid', 'profile', 'email'],
+    usePKCE: true,
+    additionalParameters: {
+        'claropay_device_id': deviceId
+    }
     // only for testing purposes
     dangerouslyAllowInsecureHttpRequests: true
 };
@@ -23,16 +27,19 @@ const config = {
 - Android Studio / Xcode
 - yarn
 - npx
+- Set ENV variables 
+  - export ANDROID_HOME=~/Library/Android/sdk
+  - export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
 
 
 ## Steps 
 yarn install
 
 ### Android 
-npx expo run:android
+pnpm run android | npx expo run:android
 
 ### iOS 
-npx expo run:ios
+pnpm run ios | npx expo run:ios (--device)
 
 
 ## Upload to Play Store 
