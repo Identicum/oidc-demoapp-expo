@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from 'react-native';
-import { getAuthConfig, saveAuthConfig, resetAuthConfig } from '../src/configService';
+import { getAuthConfig, saveAuthConfig, resetAuthConfig } from '../configService';
 
 const ConfigurationScreen = () => {
     const [issuer, setIssuer] = useState('');

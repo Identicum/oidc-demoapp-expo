@@ -7,9 +7,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Toaster } from 'sonner-native';
 
 // Import your screens
-import LoginScreen from './screens/LoginScreen';
-import HomeScreen from './screens/HomeScreen';
-import ConfigurationScreen from './screens/ConfigurationScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import ConfigurationScreen from './src/screens/ConfigurationScreen';
 
 // Define the stack navigator param list
 type RootStackParamList = {

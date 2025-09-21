@@ -13,8 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useAuth } from '../src/AuthContext';
-import authService from '../src/authService';
+import { useAuth } from '../AuthContext';
+import authService from '../authService';
 import { Ionicons } from '@expo/vector-icons';
 
 // Define the navigation param list type
