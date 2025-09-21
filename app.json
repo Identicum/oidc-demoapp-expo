@@ -3,6 +3,7 @@
     "name": "oidc-demoapp-expo",
     "slug": "oidc-demoapp-expo",
     "version": "1.0.0",
+    "icon": "./assets/icon.png",
     "ios": {
       "bundleIdentifier": "com.identicum.demo.mobile",
       "appleTeamId": "4JKAN8BCWN"
