@@ -31,16 +31,16 @@ export const getAuthConfig = async (): Promise<typeof defaultConfig> => {
     };
   }
 
-    if (!config.additionalParameters?.claropay_device_id) {
-      const deviceId = await DeviceInfo.getUniqueId();
-      config = {
-        ...config,
-        additionalParameters: {
-          ...config.additionalParameters,
-          claropay_device_id: deviceId,
-        },
-      };
-    }
+  if (!config.additionalParameters?.sherpa_device_id) {
+    const deviceId = await DeviceInfo.getUniqueId();
+    config = {
+      ...config,
+      additionalParameters: {
+        ...config.additionalParameters,
+        sherpa_device_id: deviceId,
+      },
+    };
+  }
 
   return config;
 };
@@ -50,7 +50,7 @@ export const resetAuthConfig = async (): Promise<typeof defaultConfig> => {
   let config = {
     ...defaultConfig,
     additionalParameters: {
-      claropay_device_id: deviceId,
+      sherpa_device_id: deviceId,
     },
   };
 

@@ -13,12 +13,12 @@ import { AuthTokens, KeychainCredentials } from "./types";
 import { getAuthConfig } from "./configService";
 
 // Build a runtime AuthConfiguration from saved config. We trust getAuthConfig
-// to ensure claropay_device_id exists (it will create one if missing).
+// to ensure sherpa_device_id exists (it will create one if missing).
 const getConfig = async (): Promise<AuthConfiguration> => {
   const savedConfig = await getAuthConfig();
   console.log(
     "Device ID from config:",
-    savedConfig.additionalParameters?.claropay_device_id
+    savedConfig.additionalParameters?.sherpa_device_id
   );
   // Cast to AuthConfiguration since getAuthConfig returns a subset that
   // matches AuthConfiguration except redirectUrl/usePKCE which we add here.
