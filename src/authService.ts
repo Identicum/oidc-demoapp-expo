@@ -3,7 +3,6 @@ import {
   authorize,
   refresh,
   revoke,
-  AuthConfiguration,
   AuthorizeResult,
   RefreshResult,
 } from "react-native-app-auth";
@@ -11,23 +10,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthTokens, KeychainCredentials } from "./types";
 
 import { getAuthConfig } from "./configService";
-
-// Build a runtime AuthConfiguration from saved config. We trust getAuthConfig
-// to ensure sherpa_device_id exists (it will create one if missing).
-const getConfig = async (): Promise<AuthConfiguration> => {
-  const savedConfig = await getAuthConfig();
-  console.log(
-    "Device ID from config:",
-    savedConfig.additionalParameters?.sherpa_device_id
-  );
-  // Cast to AuthConfiguration since getAuthConfig returns a subset that
-  // matches AuthConfiguration except redirectUrl/usePKCE which we add here.
-  return {
-    ...(savedConfig as unknown as AuthConfiguration),
-    redirectUrl: "com.identicum.demo.mobile.auth:/callback",
-    usePKCE: true,
-  } as AuthConfiguration;
-};
 
 // Key constants for secure storage
 const AUTH_CREDENTIALS = "auth.credentials";
@@ -148,7 +130,7 @@ const refreshTokens = async (): Promise<AuthTokens | null> => {
       return null;
     }
 
-    const config = await getConfig();
+    const config = await getAuthConfig();
     const refreshedState = await refresh(config, { refreshToken });
 
     // Store the new tokens
@@ -193,7 +175,7 @@ const clearTokens = async (): Promise<boolean> => {
 const login = async (): Promise<AuthTokens | null> => {
   console.info("Logging in");
   try {
-    const config = await getConfig();
+    const config = await getAuthConfig();
     console.info("Logging in with config: " + JSON.stringify(config));
 
     const authState = await authorize(config);
@@ -224,7 +206,7 @@ const login = async (): Promise<AuthTokens | null> => {
 const logout = async (): Promise<boolean> => {
   console.info("Logging out");
   try {
-    const config = await getConfig();
+    const config = await getAuthConfig();
     // Get credentials from keychain
     const credentialsResult = await Keychain.getGenericPassword();
     if (credentialsResult) {

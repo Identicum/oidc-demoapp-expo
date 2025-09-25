@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from 'react-native';
-import { getAuthConfig, saveAuthConfig, resetAuthConfig } from '../configService';
+import { saveAuthConfig, resetAuthConfig, getStoredConfig } from '../configService';
 
 const ConfigurationScreen = () => {
     const [issuer, setIssuer] = useState('');
     const [clientId, setClientId] = useState('');
     const [scopes, setScopes] = useState<string[]>([]);
     const [additionalParameters, setAdditionalParameters] = useState('');
+    const [accountPageUrl, setAccountPageUrl] = useState('');
 
     useEffect(() => {
         const loadConfig = async () => {
-            const config = await getAuthConfig();
+            const config = await getStoredConfig();
             setIssuer(config.issuer || '');
             setClientId(config.clientId || '');
             setScopes(config.scopes || []);
+            setAccountPageUrl(config.accountPageUrl || '');
             setAdditionalParameters(JSON.stringify(config.additionalParameters || {}, null, 2));
         };
         loadConfig();
@@ -29,6 +31,7 @@ const ConfigurationScreen = () => {
                 issuer,
                 clientId,
                 scopes,
+                accountPageUrl,
                 additionalParameters: params,
             });
             Alert.alert('Success', 'Configuration saved successfully.');
@@ -43,6 +46,7 @@ const ConfigurationScreen = () => {
         setIssuer(config.issuer || '');
         setClientId(config.clientId || '');
         setScopes(config.scopes || []);
+        setAccountPageUrl(config.accountPageUrl || '');
         setAdditionalParameters(JSON.stringify(config.additionalParameters || {}, null, 2));
         await saveAuthConfig(config);
         Alert.alert('Success', 'Configuration has been reset to default.');
@@ -81,6 +85,14 @@ const ConfigurationScreen = () => {
                 onChangeText={setAdditionalParameters}
                 multiline
                 numberOfLines={4}
+                autoCapitalize="none"
+            />
+
+            <Text style={styles.label}>Account Page URL</Text>
+            <TextInput
+                style={styles.input}
+                value={accountPageUrl}
+                onChangeText={setAccountPageUrl}
                 autoCapitalize="none"
             />
 

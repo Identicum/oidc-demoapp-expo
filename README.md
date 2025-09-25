@@ -38,11 +38,11 @@ yarn install
 
 ### Android
 
-pnpm run android | npx expo run:android
+pnpm android | npx expo run:android
 
 ### iOS
 
-pnpm run ios | npx expo run:ios (--device)
+pnpm ios | npx expo run:ios (--device)
 
 ## Upload to Play Store
 

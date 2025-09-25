@@ -1837,6 +1837,28 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNCClipboard (1.16.3):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNDeviceInfo (14.1.1):
     - React-Core
   - RNGestureHandler (2.28.0):
@@ -2202,6 +2224,7 @@ DEPENDENCIES:
   - "ReactCommon/turbomodule/core (from `../node_modules/.pnpm/react-native@0.81.4_@babel+core@7.28.4_@types+react@19.1.13_react@19.1.0/node_modules/react-native/ReactCommon`)"
   - "ReactNativeDependencies (from `../node_modules/.pnpm/react-native@0.81.4_@babel+core@7.28.4_@types+react@19.1.13_react@19.1.0/node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)"
   - "RNCAsyncStorage (from `../node_modules/.pnpm/@react-native-async-storage+async-storage@2.2.0_react-native@0.81.4_@babel+core@7.28.4__339db7fa077beb3136bff30ed9b13bfa/node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCClipboard (from `../node_modules/.pnpm/@react-native-clipboard+clipboard@1.16.3_react-native@0.81.4_@babel+core@7.28.4_@types+_94814bb55c0b406e15bcd7737811e608/node_modules/@react-native-clipboard/clipboard`)"
   - "RNDeviceInfo (from `../node_modules/.pnpm/react-native-device-info@14.1.1_react-native@0.81.4_@babel+core@7.28.4_@types+react@19.1.13_react@19.1.0_/node_modules/react-native-device-info`)"
   - "RNGestureHandler (from `../node_modules/.pnpm/react-native-gesture-handler@2.28.0_react-native@0.81.4_@babel+core@7.28.4_@types+react_0eb824141dd4b9f130e180feb53e1a28/node_modules/react-native-gesture-handler`)"
   - "RNKeychain (from `../node_modules/.pnpm/react-native-keychain@10.0.0/node_modules/react-native-keychain`)"
@@ -2373,6 +2396,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/.pnpm/react-native@0.81.4_@babel+core@7.28.4_@types+react@19.1.13_react@19.1.0/node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
   RNCAsyncStorage:
     :path: "../node_modules/.pnpm/@react-native-async-storage+async-storage@2.2.0_react-native@0.81.4_@babel+core@7.28.4__339db7fa077beb3136bff30ed9b13bfa/node_modules/@react-native-async-storage/async-storage"
+  RNCClipboard:
+    :path: "../node_modules/.pnpm/@react-native-clipboard+clipboard@1.16.3_react-native@0.81.4_@babel+core@7.28.4_@types+_94814bb55c0b406e15bcd7737811e608/node_modules/@react-native-clipboard/clipboard"
   RNDeviceInfo:
     :path: "../node_modules/.pnpm/react-native-device-info@14.1.1_react-native@0.81.4_@babel+core@7.28.4_@types+react@19.1.13_react@19.1.0_/node_modules/react-native-device-info"
   RNGestureHandler:
@@ -2470,6 +2495,7 @@ SPEC CHECKSUMS:
   ReactCommon: 149b6c05126f2e99f2ed0d3c63539369546f8cae
   ReactNativeDependencies: ed6d1e64802b150399f04f1d5728ec16b437251e
   RNCAsyncStorage: 3a4f5e2777dae1688b781a487923a08569e27fe4
+  RNCClipboard: 88d7eeb555d1183915f0885bdbc5c97eb6f7f3ba
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNGestureHandler: 2914750df066d89bf9d8f48a10ad5f0051108ac3
   RNKeychain: 667b7bd224f14055ae4cb52b41a82ad0ad70574f
