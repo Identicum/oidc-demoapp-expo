@@ -181,44 +181,6 @@ const HomeScreen: React.FC = () => {
                             </Text>
                         </View>
 
-                        {authData?.idToken && (
-                            <>
-                                <View style={styles.divider} />
-                                <View style={styles.tokenSection}>
-                                    <View style={styles.tokenHeaderRow}>
-                                        <Text style={styles.tokenTitle}>ID Token</Text>
-                                        <View style={styles.tokenActions}>
-                                            <TouchableOpacity
-                                                style={styles.actionButton}
-                                                onPress={() => {
-                                                    const token = authData.idToken || '';
-                                                    Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
-                                                }}
-                                            >
-                                                <Ionicons name="open-outline" size={20} color="#4CAF50" />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity
-                                                style={styles.actionButton}
-                                                onPress={() => {
-                                                    Clipboard.setString(authData.idToken || '');
-                                                    Alert.alert('Copied!', 'ID token copied to clipboard');
-                                                }}
-                                            >
-                                                <Ionicons name="copy-outline" size={20} color="#4CAF50" />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                    <View style={styles.tokenValueContainer}>
-                                        <ScrollView>
-                                            <Text style={styles.tokenValue}>
-                                                {authData.idToken}
-                                            </Text>
-                                        </ScrollView>
-                                    </View>
-                                </View>
-                            </>
-                        )}
-
                         <View style={styles.divider} />
 
                         <View style={styles.tokenSection}>
@@ -257,6 +219,40 @@ const HomeScreen: React.FC = () => {
                             </Text>
                         </View>
 
+                        <View style={styles.divider} />
+
+                        <View style={styles.tokenSection}>
+                            <View style={styles.tokenHeaderRow}>
+                                <Text style={styles.tokenTitle}>ID Token</Text>
+                                <View style={styles.tokenActions}>
+                                    <TouchableOpacity
+                                        style={styles.actionButton}
+                                        onPress={() => {
+                                            const token = authData.idToken || '';
+                                            Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
+                                        }}
+                                    >
+                                        <Ionicons name="open-outline" size={20} color="#4CAF50" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.actionButton}
+                                        onPress={() => {
+                                            Clipboard.setString(authData.idToken || '');
+                                            Alert.alert('Copied!', 'ID token copied to clipboard');
+                                        }}
+                                    >
+                                        <Ionicons name="copy-outline" size={20} color="#4CAF50" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            <View style={styles.tokenValueContainer}>
+                                <ScrollView>
+                                    <Text style={styles.tokenValue}>
+                                        {authData.idToken}
+                                    </Text>
+                                </ScrollView>
+                            </View>
+                        </View>
 
                     </View>
                 </ScrollView>

@@ -2,7 +2,7 @@ import * as Keychain from "react-native-keychain";
 import {
   authorize,
   refresh,
-  revoke,
+  logout,
   AuthorizeResult,
   RefreshResult,
 } from "react-native-app-auth";
@@ -32,6 +32,7 @@ const storeTokens = async (
     // Prepare credentials object with both tokens
     const credentials: KeychainCredentials = {
       accessToken: authResult.accessToken,
+      idToken: authResult.idToken,
       // refreshToken may be undefined|null on some flows; coerce to empty string
       refreshToken: String((authResult as any).refreshToken ?? ""),
     };
@@ -102,8 +103,9 @@ const getTokens = async (): Promise<AuthTokens | null> => {
 
     return {
       accessToken: credentials.accessToken,
-      refreshToken: credentials.refreshToken,
       accessTokenExpirationDate: accessExpiry,
+      idToken: credentials.idToken,
+      refreshToken: credentials.refreshToken,
       refreshTokenExpirationDate: refreshExpiry,
     };
   } catch (error) {
@@ -145,8 +147,9 @@ const refreshTokens = async (): Promise<AuthTokens | null> => {
 
     return {
       accessToken: refreshedState.accessToken,
-      refreshToken: String((refreshedState as any).refreshToken ?? ""),
       accessTokenExpirationDate: accessExp,
+      idToken: refreshedState.idToken,
+      refreshToken: String((refreshedState as any).refreshToken ?? ""),
       refreshTokenExpirationDate:
         Date.now() + Number(refreshExpiresRaw ?? 0) * 1000,
     };
@@ -189,8 +192,9 @@ const login = async (): Promise<AuthTokens | null> => {
         (authState as any).tokenAdditionalParameters?.refresh_expires_in;
       return {
         accessToken: authState.accessToken,
-        refreshToken: String((authState as any).refreshToken ?? ""),
         accessTokenExpirationDate: accessExp,
+        idToken: authState.idToken,
+        refreshToken: String((authState as any).refreshToken ?? ""),
         refreshTokenExpirationDate:
           Date.now() + Number(refreshExpiresRaw ?? 0) * 1000,
       };
@@ -203,7 +207,7 @@ const login = async (): Promise<AuthTokens | null> => {
 };
 
 // Logout
-const logout = async (): Promise<boolean> => {
+const logoutUser = async (): Promise<boolean> => {
   console.info("Logging out");
   try {
     const config = await getAuthConfig();
@@ -213,15 +217,11 @@ const logout = async (): Promise<boolean> => {
       const credentials = JSON.parse(
         credentialsResult.password
       ) as KeychainCredentials;
-      const refreshToken = credentials.refreshToken;
 
-      // Revoke token if it exists
-      if (refreshToken) {
-        await revoke(config, {
-          tokenToRevoke: refreshToken,
-          includeBasicAuth: true,
-        });
-      }
+      await logout(config, {
+        idToken: credentials.idToken,
+        postLogoutRedirectUrl: config.redirectUrl,
+      });
     }
 
     return await clearTokens();
@@ -240,7 +240,7 @@ const isAuthenticated = async (): Promise<boolean> => {
 
 export default {
   login,
-  logout,
+  logoutUser,
   isAuthenticated,
   getTokens,
   refreshTokens,
