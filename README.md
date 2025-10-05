@@ -11,7 +11,7 @@ Edit the authService.tsx file and update the following values
 ```
 const config = {
     issuer: 'https://idp.demo.idsherpa.com/realms/demo',
-    clientId: 'oidc-demoapp-expo',
+    clientId: 'oidc_demoapp_expo',
     redirectUrl: 'com.identicum.demo.mobile.auth:/callback',
     scopes: ['openid', 'profile', 'email'],
     usePKCE: true,

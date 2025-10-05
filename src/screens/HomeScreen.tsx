@@ -5,18 +5,14 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    StatusBar,
     Platform,
     ActivityIndicator,
     Alert,
     Linking
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../AuthContext';
-import authService from '../authService';
 import { getStoredConfig } from '../configService';
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -29,12 +25,11 @@ type RootStackParamList = {
     Profile: undefined;
 };
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenNavigationProp = NavigationProp<RootStackParamList, 'Home'>;
 
 const HomeScreen: React.FC = () => {
-    const navigation = useNavigation<HomeScreenNavigationProp>();
-    const { isAuthenticated, logout } = useAuth();
-    const [authData, setAuthData] = useState<any>(null);
+    const navigation = useNavigation() as any;
+    const { isAuthenticated, logoutUser, authData } = useAuth();
     const [loading, setLoading] = useState<boolean>(true);
     const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -51,36 +46,19 @@ const HomeScreen: React.FC = () => {
         if (!isAuthenticated && !loading) {
             navigation.replace('Login');
         }
+
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    style={styles.headerButton}
+                    onPress={openBottomSheet}
+                >
+                    <Ionicons name="person-circle" size={28} color="#2196F3" />
+                </TouchableOpacity>
+            )
+        })
+
     }, [isAuthenticated, loading, navigation]);
-
-    useEffect(() => {
-        const fetchTokenData = async () => {
-            try {
-                setLoading(true);
-                // Get tokens from the secure storage via auth context
-                const tokens = await authService.getTokens();
-
-                if (tokens) {
-                    setAuthData({
-                        accessToken: tokens.accessToken,
-                        refreshToken: tokens.refreshToken,
-                        accessTokenExpirationDate: tokens.accessTokenExpirationDate,
-                        refreshTokenExpirationDate: tokens.refreshTokenExpirationDate,
-                        idToken: tokens.idToken || null
-                    });
-                } else {
-                    setAuthData(null);
-                }
-            } catch (error) {
-                console.error('Error fetching token data:', error);
-                Alert.alert('Error', 'Failed to load authentication data');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTokenData();
-    }, [isAuthenticated]);
 
     // Format date for display
     const formatDate = (timestamp: number): string => {
@@ -99,22 +77,13 @@ const HomeScreen: React.FC = () => {
     const handleLogout = async () => {
         try {
             setLoading(true);
-            await logout();
+            await logoutUser();
             // The useEffect will handle navigation once isAuthenticated changes
         } catch (error) {
             console.error('Error logging out:', error);
             setLoading(false);
         }
     };
-
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#4CAF50" />
-                <Text style={styles.loadingText}>Loading authentication data...</Text>
-            </View>
-        );
-    }
 
     // If not authenticated and still on this screen, show loading until redirect happens
     if (!isAuthenticated) {
@@ -127,168 +96,181 @@ const HomeScreen: React.FC = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <SafeAreaView style={styles.container}>
-                <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-                <ScrollView contentContainerStyle={styles.scrollContent}>
-                    <View style={styles.card}>
-                        <View style={styles.headerContainer}>
-                            <View style={styles.headerLeft}>
-                                <Ionicons name="shield-checkmark" size={28} color="#4CAF50" />
-                                <Text style={styles.headerText}>Authentication Successful</Text>
-                            </View>
-                            <TouchableOpacity
-                                style={styles.headerButton}
-                                onPress={openBottomSheet}
-                            >
-                                <Ionicons name="person-circle" size={28} color="#2196F3" />
-                            </TouchableOpacity>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.card}>
+                    <View style={styles.headerContainer}>
+                        <View style={styles.headerLeft}>
+                            <Ionicons name="shield-checkmark" size={28} color="#4CAF50" />
+                            <Text style={styles.headerText}>Authentication Successful</Text>
                         </View>
-
-                        <View style={styles.tokenSection}>
-                            <View style={styles.tokenHeaderRow}>
-                                <Text style={styles.tokenTitle}>Access Token</Text>
-                                <View style={styles.tokenActions}>
-                                    <TouchableOpacity
-                                        style={styles.actionButton}
-                                        onPress={() => {
-                                            const token = authData?.accessToken || '';
-                                            Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
-                                        }}
-                                    >
-                                        <Ionicons name="open-outline" size={20} color="#4CAF50" />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={styles.actionButton}
-                                        onPress={() => {
-                                            Clipboard.setString(authData?.accessToken || '');
-                                            Alert.alert('Copied!', 'Access token copied to clipboard');
-                                        }}
-                                    >
-                                        <Ionicons name="copy-outline" size={20} color="#4CAF50" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            <View style={styles.tokenValueContainer}>
-                                <ScrollView>
-                                    <Text style={styles.tokenValue}>
-                                        {authData?.accessToken || ''}
-                                    </Text>
-                                </ScrollView>
-                            </View>
-                            <Text style={styles.expiryText}>
-                                Expires: {formatDate(authData?.accessTokenExpirationDate || 0)}
-                            </Text>
-                        </View>
-
-                        <View style={styles.divider} />
-
-                        <View style={styles.tokenSection}>
-                            <View style={styles.tokenHeaderRow}>
-                                <Text style={styles.tokenTitle}>Refresh Token</Text>
-                                <View style={styles.tokenActions}>
-                                    <TouchableOpacity
-                                        style={styles.actionButton}
-                                        onPress={() => {
-                                            const token = authData?.refreshToken || '';
-                                            Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
-                                        }}
-                                    >
-                                        <Ionicons name="open-outline" size={20} color="#4CAF50" />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={styles.actionButton}
-                                        onPress={() => {
-                                            Clipboard.setString(authData?.refreshToken || '');
-                                            Alert.alert('Copied!', 'Refresh token copied to clipboard');
-                                        }}
-                                    >
-                                        <Ionicons name="copy-outline" size={20} color="#4CAF50" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            <View style={styles.tokenValueContainer}>
-                                <ScrollView>
-                                    <Text style={styles.tokenValue}>
-                                        {authData?.refreshToken || ''}
-                                    </Text>
-                                </ScrollView>
-                            </View>
-                            <Text style={styles.expiryText}>
-                                Expires: {formatDate(authData?.refreshTokenExpirationDate || 0)}
-                            </Text>
-                        </View>
-
-                        <View style={styles.divider} />
-
-                        <View style={styles.tokenSection}>
-                            <View style={styles.tokenHeaderRow}>
-                                <Text style={styles.tokenTitle}>ID Token</Text>
-                                <View style={styles.tokenActions}>
-                                    <TouchableOpacity
-                                        style={styles.actionButton}
-                                        onPress={() => {
-                                            const token = authData.idToken || '';
-                                            Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
-                                        }}
-                                    >
-                                        <Ionicons name="open-outline" size={20} color="#4CAF50" />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={styles.actionButton}
-                                        onPress={() => {
-                                            Clipboard.setString(authData.idToken || '');
-                                            Alert.alert('Copied!', 'ID token copied to clipboard');
-                                        }}
-                                    >
-                                        <Ionicons name="copy-outline" size={20} color="#4CAF50" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            <View style={styles.tokenValueContainer}>
-                                <ScrollView>
-                                    <Text style={styles.tokenValue}>
-                                        {authData.idToken}
-                                    </Text>
-                                </ScrollView>
-                            </View>
-                        </View>
-
                     </View>
-                </ScrollView>
-                <BottomSheet
-                    ref={bottomSheetRef}
-                    index={-1}
-                    enableDynamicSizing={true}
-                    enablePanDownToClose={true}
-                >
-                    <BottomSheetView style={styles.bottomSheetContent}>
-                        <TouchableOpacity
-                            style={styles.bottomSheetButton}
-                            onPress={async () => {
-                                const config = await getStoredConfig();
-                                if (config.accountPageUrl) {
-                                    Linking.openURL(config.accountPageUrl);
+
+                    <View style={styles.tokenSection}>
+                        <View style={styles.tokenHeaderRow}>
+                            <Text style={styles.tokenTitle}>Access Token</Text>
+                            <View style={styles.tokenActions}>
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => {
+                                        const token = authData?.accessToken || '';
+                                        Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
+                                    }}
+                                >
+                                    <Ionicons name="open-outline" size={20} color="#4CAF50" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => {
+                                        Clipboard.setString(authData?.accessToken || '');
+                                        Alert.alert('Copied!', 'Access token copied to clipboard');
+                                    }}
+                                >
+                                    <Ionicons name="copy-outline" size={20} color="#4CAF50" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.tokenValueContainer}>
+                            <ScrollView>
+                                <Text style={styles.tokenValue}>
+                                    {authData?.accessToken || ''}
+                                </Text>
+                            </ScrollView>
+                        </View>
+                        <Text style={styles.expiryText}>
+                            Expires: {formatDate(authData?.accessTokenExpirationDate || 0)}
+                        </Text>
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.tokenSection}>
+                        <View style={styles.tokenHeaderRow}>
+                            <Text style={styles.tokenTitle}>Refresh Token</Text>
+                            <View style={styles.tokenActions}>
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => {
+                                        const token = authData?.refreshToken || '';
+                                        Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
+                                    }}
+                                >
+                                    <Ionicons name="open-outline" size={20} color="#4CAF50" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => {
+                                        Clipboard.setString(authData?.refreshToken || '');
+                                        Alert.alert('Copied!', 'Refresh token copied to clipboard');
+                                    }}
+                                >
+                                    <Ionicons name="copy-outline" size={20} color="#4CAF50" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.tokenValueContainer}>
+                            <ScrollView>
+                                <Text style={styles.tokenValue}>
+                                    {authData?.refreshToken || ''}
+                                </Text>
+                            </ScrollView>
+                        </View>
+                        <Text style={styles.expiryText}>
+                            Expires: {formatDate(authData?.refreshTokenExpirationDate || 0)}
+                        </Text>
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.tokenSection}>
+                        <View style={styles.tokenHeaderRow}>
+                            <Text style={styles.tokenTitle}>ID Token</Text>
+                            <View style={styles.tokenActions}>
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => {
+                                        const token = authData?.idToken || '';
+                                        Linking.openURL(`https://jwt.io/#debugger-io?token=${token}`);
+                                    }}
+                                >
+                                    <Ionicons name="open-outline" size={20} color="#4CAF50" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => {
+                                        Clipboard.setString(authData?.idToken || '');
+                                        Alert.alert('Copied!', 'ID token copied to clipboard');
+                                    }}
+                                >
+                                    <Ionicons name="copy-outline" size={20} color="#4CAF50" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.tokenValueContainer}>
+                            <ScrollView>
+                                <Text style={styles.tokenValue}>
+                                    {authData?.idToken}
+                                </Text>
+                            </ScrollView>
+                        </View>
+                    </View>
+
+                </View>
+            </ScrollView>
+            <BottomSheet
+                ref={bottomSheetRef}
+                index={-1}
+                enableDynamicSizing={true}
+                enablePanDownToClose={true}
+            >
+                <BottomSheetView style={styles.bottomSheetContent}>
+                    <TouchableOpacity
+                        style={styles.bottomSheetButton}
+                        onPress={async () => {
+                            const config = await getStoredConfig();
+                            if (config.accountPageUrl) {
+                                Linking.openURL(config.accountPageUrl);
+                            }
+                            closeBottomSheet();
+                        }}
+                    >
+                        <Ionicons name="person-outline" size={24} color="#2196F3" />
+                        <Text style={styles.bottomSheetButtonText}>Account</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.bottomSheetButton}
+                        onPress={() => {
+                            handleLogout();
+                            closeBottomSheet();
+                        }}
+                    >
+                        <Ionicons name="log-out-outline" size={24} color="#2196F3" />
+                        <Text style={[styles.bottomSheetButtonText]}>Logout</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.bottomSheetButton}
+                        onPress={async () => {
+                            const config = await getStoredConfig();
+                            if (config.deleteAccountUrl) {
+                                let url = config.deleteAccountUrl;
+                                if (config.issuer) {
+                                    url = url.replace('{ISSUER}', config.issuer);
                                 }
-                                closeBottomSheet();
-                            }}
-                        >
-                            <Ionicons name="person-outline" size={24} color="#2196F3" />
-                            <Text style={styles.bottomSheetButtonText}>Account</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.bottomSheetButton}
-                            onPress={() => {
-                                handleLogout();
-                                closeBottomSheet();
-                            }}
-                        >
-                            <Ionicons name="log-out-outline" size={24} color="#F44336" />
-                            <Text style={[styles.bottomSheetButtonText, { color: '#F44336' }]}>Logout</Text>
-                        </TouchableOpacity>
-                    </BottomSheetView>
-                </BottomSheet>
-            </SafeAreaView>
+                                if (config.clientId) {
+                                    url = url.replace('{CLIENT_ID}', config.clientId);
+                                }
+                                // Use the same redirectUrl as configured in getAuthConfig
+                                const redirectUrl = 'com.identicum.demo.mobile.auth:/callback';
+                                url = url.replace('{REDIRECT_URI}', encodeURIComponent(redirectUrl));
+                                Linking.openURL(url);
+                            }
+                            closeBottomSheet();
+                        }}
+                    >
+                        <Ionicons name="trash-outline" size={24} color="#F44336" />
+                        <Text style={[styles.bottomSheetButtonText, { color: '#F44336' }]}>Delete Account</Text>
+                    </TouchableOpacity>
+                </BottomSheetView>
+            </BottomSheet>
         </GestureHandlerRootView>
     );
 };
@@ -323,11 +305,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#F5F5F5',
     },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#757575',
-    },
     card: {
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
@@ -352,7 +329,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerButton: {
-        padding: 8,
+        paddingLeft: 4,
         borderRadius: 20,
     },
     headerText: {

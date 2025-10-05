@@ -1,10 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { AppState, AppStateStatus, DeviceEventEmitter } from 'react-native';
-import * as Keychain from 'react-native-keychain';
 import authService from './authService';
-import { AuthContextType } from './types';
-import { KEYCHAIN_OPTIONS } from './authService';
-
+import { AuthContextType, AuthTokens } from './types';
 // Create an event emitter for authentication events
 export const authEvents = DeviceEventEmitter;
 export const SESSION_EXPIRED_EVENT = 'sessionExpired';
@@ -18,8 +15,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [userToken, setUserToken] = useState<string | null>(null);
-    const appStateRef = React.useRef<AppStateStatus>(AppState.currentState);
+    const [authData, setAuthData] = useState<AuthTokens | null>(null);
 
     // Initial authentication check
     useEffect(() => {
@@ -28,7 +24,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             try {
                 const tokens = await authService.getTokens();
                 if (tokens) {
-                    setUserToken(tokens.accessToken);
+                    setAuthData(tokens);
                     setIsAuthenticated(true);
                 }
             } catch (error) {
@@ -47,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
             const result = await authService.login();
             if (result) {
-                setUserToken(result.accessToken);
+                setAuthData(result);
                 setIsAuthenticated(true);
             }
         } catch (error) {
@@ -58,11 +54,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     // Logout function
-    const logout = async (): Promise<void> => {
+    const logoutUser = async (): Promise<void> => {
         setIsLoading(true);
         try {
-            await authService.logoutUser();
-            setUserToken(null);
+            await authService.logoutUser(authData!.idToken);
+            setAuthData(null);
             setIsAuthenticated(false);
         } catch (error) {
             console.error('Logout failed:', error);
@@ -77,18 +73,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.log('App state changed:', nextAppState);
 
             // Only process when changing to 'active' state and only if it's different from previous state
-            if (nextAppState === 'active' && appStateRef.current !== 'active') {
+            if (nextAppState === 'active') {
                 if (isAuthenticated) {
                     // Request biometrics authentication every time app becomes active
-                    try {
-                        await Keychain.getGenericPassword(KEYCHAIN_OPTIONS);
+                    //await Keychain.getGenericPassword(KEYCHAIN_OPTIONS);
 
+                    try {
                         // Check if tokens are still valid
                         const tokens = await authService.getTokens();
                         if (!tokens && isAuthenticated) {
                             // Tokens are no longer valid, but we thought we were authenticated
                             setIsAuthenticated(false);
-                            setUserToken(null);
+                            setAuthData(null);
 
                             // Dispatch event for expired session
                             authEvents.emit(SESSION_EXPIRED_EVENT);
@@ -100,11 +96,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     }
                 }
             }
-
-            // Update the ref only for 'active' or 'background' states to avoid unnecessary state changes
-            if (nextAppState === 'active' || nextAppState === 'background') {
-                appStateRef.current = nextAppState;
-            }
         };
 
         const subscription = AppState.addEventListener('change', handleAppStateChange);
@@ -112,13 +103,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return () => {
             subscription.remove();
         };
-    }, [isAuthenticated]);
+    }, []);
 
     // Monitor for session expiration
     useEffect(() => {
         const handleSessionExpired = (): void => {
             setIsAuthenticated(false);
-            setUserToken(null);
+            setAuthData(null);
         };
 
         let sessionExpiredEvent = authEvents.addListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
@@ -133,9 +124,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             value={{
                 isLoading,
                 isAuthenticated,
-                userToken,
+                authData,
                 login,
-                logout
+                logoutUser
             }}
         >
             {children}

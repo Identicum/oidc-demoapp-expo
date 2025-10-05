@@ -10,6 +10,7 @@ export type CustomConfig = Omit<
 > & {
   additionalParameters?: { [key: string]: string };
   accountPageUrl?: string;
+  deleteAccountUrl?: string;
 };
 
 export const defaultConfig: CustomConfig = {
@@ -17,6 +18,8 @@ export const defaultConfig: CustomConfig = {
   clientId: "oidc_demoapp_expo",
   scopes: ["openid", "profile", "email"],
   accountPageUrl: "https://idp.demo.idsherpa.com/realms/demo/account/",
+  deleteAccountUrl:
+    "https://idp.demo.idsherpa.com/realms/demo/protocol/openid-connect/auth?response_type=code&client_id=oidc_demoapp_expo&redirect_uri=com.identicum.demo.mobile.auth:/callback&kc_action=delete_account",
 };
 
 export const getStoredConfig = async (): Promise<typeof defaultConfig> => {
@@ -50,13 +53,14 @@ export const getAuthConfig = async (): Promise<AuthConfiguration> => {
       },
     };
   }
-  // Cast to AuthConfiguration since getAuthConfig returns a subset that
-  // matches AuthConfiguration except redirectUrl/usePKCE which we add here.
-  return {
+  // Return a complete AuthConfiguration, adding redirectUrl and usePKCE
+  const authConfig: AuthConfiguration = {
     ...(config as unknown as AuthConfiguration),
     redirectUrl: "com.identicum.demo.mobile.auth:/callback",
     usePKCE: true,
-  } as AuthConfiguration;
+  } as unknown as AuthConfiguration;
+
+  return authConfig;
 };
 
 export const resetAuthConfig = async (): Promise<typeof defaultConfig> => {

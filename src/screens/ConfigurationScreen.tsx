@@ -8,6 +8,7 @@ const ConfigurationScreen = () => {
     const [scopes, setScopes] = useState<string[]>([]);
     const [additionalParameters, setAdditionalParameters] = useState('');
     const [accountPageUrl, setAccountPageUrl] = useState('');
+    const [deleteAccountUrl, setDeleteAccountUrl] = useState('');
 
     useEffect(() => {
         const loadConfig = async () => {
@@ -16,6 +17,7 @@ const ConfigurationScreen = () => {
             setClientId(config.clientId || '');
             setScopes(config.scopes || []);
             setAccountPageUrl(config.accountPageUrl || '');
+            setDeleteAccountUrl(config.deleteAccountUrl || '');
             setAdditionalParameters(JSON.stringify(config.additionalParameters || {}, null, 2));
         };
         loadConfig();
@@ -32,6 +34,7 @@ const ConfigurationScreen = () => {
                 clientId,
                 scopes,
                 accountPageUrl,
+                deleteAccountUrl,
                 additionalParameters: params,
             });
             Alert.alert('Success', 'Configuration saved successfully.');
@@ -47,6 +50,7 @@ const ConfigurationScreen = () => {
         setClientId(config.clientId || '');
         setScopes(config.scopes || []);
         setAccountPageUrl(config.accountPageUrl || '');
+        setDeleteAccountUrl(config.deleteAccountUrl || '');
         setAdditionalParameters(JSON.stringify(config.additionalParameters || {}, null, 2));
         await saveAuthConfig(config);
         Alert.alert('Success', 'Configuration has been reset to default.');
@@ -93,6 +97,14 @@ const ConfigurationScreen = () => {
                 style={styles.input}
                 value={accountPageUrl}
                 onChangeText={setAccountPageUrl}
+                autoCapitalize="none"
+            />
+
+            <Text style={styles.label}>Delete Account URL</Text>
+            <TextInput
+                style={styles.input}
+                value={deleteAccountUrl}
+                onChangeText={setDeleteAccountUrl}
                 autoCapitalize="none"
             />
 

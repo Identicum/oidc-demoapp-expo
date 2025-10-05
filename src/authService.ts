@@ -72,6 +72,7 @@ const getTokens = async (): Promise<AuthTokens | null> => {
     const refreshExpiryStr = await AsyncStorage.getItem(REFRESH_EXPIRY_KEY);
 
     if (!accessExpiryStr || !refreshExpiryStr) {
+      console.info("No tokens found");
       return null;
     }
 
@@ -101,13 +102,17 @@ const getTokens = async (): Promise<AuthTokens | null> => {
       credentialsResult.password
     ) as KeychainCredentials;
 
-    return {
+    const tokens = {
       accessToken: credentials.accessToken,
       accessTokenExpirationDate: accessExpiry,
       idToken: credentials.idToken,
       refreshToken: credentials.refreshToken,
       refreshTokenExpirationDate: refreshExpiry,
     };
+
+    console.info("Retrieved tokens:", tokens);
+
+    return tokens;
   } catch (error) {
     console.error("Error getting tokens:", error);
     return null;
@@ -207,22 +212,15 @@ const login = async (): Promise<AuthTokens | null> => {
 };
 
 // Logout
-const logoutUser = async (): Promise<boolean> => {
+const logoutUser = async (idToken: string): Promise<boolean> => {
   console.info("Logging out");
   try {
     const config = await getAuthConfig();
-    // Get credentials from keychain
-    const credentialsResult = await Keychain.getGenericPassword();
-    if (credentialsResult) {
-      const credentials = JSON.parse(
-        credentialsResult.password
-      ) as KeychainCredentials;
 
-      await logout(config, {
-        idToken: credentials.idToken,
-        postLogoutRedirectUrl: config.redirectUrl,
-      });
-    }
+    await logout(config, {
+      idToken: idToken,
+      postLogoutRedirectUrl: config.redirectUrl,
+    });
 
     return await clearTokens();
   } catch (error) {

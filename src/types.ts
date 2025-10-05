@@ -14,7 +14,7 @@ export interface KeychainCredentials {
 export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
-  userToken: string | null;
+  authData: AuthTokens | null;
   login: () => Promise<void>;
-  logout: () => Promise<void>;
+  logoutUser: () => Promise<void>;
 }
