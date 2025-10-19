@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useAuth } from '../AuthContext';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
 
 type RootStackParamList = {
@@ -10,7 +10,7 @@ type RootStackParamList = {
     Configuration: undefined;
 };
 
-type LoginScreenNavigationProp = StackNavigationProp<
+type LoginScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     'Login'
 >;
@@ -104,6 +104,9 @@ const styles = StyleSheet.create({
         top: 40,
         right: 20,
         padding: 10,
+    },
+    lockIcon: {
+        marginBottom: 16,
     },
 });
 
