@@ -48,8 +48,7 @@ export const getAuthConfig = async (): Promise<AuthConfiguration> => {
     config = {
       ...config,
       additionalParameters: {
-        ...config.additionalParameters,
-        sherpa_device_id: deviceId,
+        ...config.additionalParameters
       },
     };
   }
