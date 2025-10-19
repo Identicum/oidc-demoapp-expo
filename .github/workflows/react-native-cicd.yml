@@ -2,7 +2,7 @@ name: React Native CI/CD
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
     paths-ignore:
       - "**.md"
       - "LICENSE"
@@ -85,13 +85,15 @@ jobs:
 
   build-and-deploy:
     needs: test
-    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || github.event_name == 'workflow_dispatch'
+    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main')) || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
-        platform: [android]
+        platform: [android, ios]
         include:
           - platform: ios
             runs-on: macos-latest
+          - platform: android
+            runs-on: ubuntu-latest
     runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
     steps:
       - name: 🏗 Checkout repository
