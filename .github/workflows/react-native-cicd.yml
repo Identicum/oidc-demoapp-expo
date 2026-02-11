@@ -207,12 +207,28 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_ACCESS_TOKEN }}
 
+      - name: 📥 Download Android artifact
+        if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: react-native-cicd.yml
+          name: app-builds-android
+          path: .
+
       - name: 🚀 Submit to Play Store
         if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
         run: |
           EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit -p android --path ./app-prod.aab --non-interactive
         env:
           GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+
+      - name: 📥 Download iOS artifact
+        if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'ios'
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: react-native-cicd.yml
+          name: app-builds-ios
+          path: .
 
       - name: 🚀 Submit to App Store
         if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'ios'
