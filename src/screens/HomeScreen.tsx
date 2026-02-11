@@ -11,21 +11,12 @@ import {
     Linking
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../AuthContext';
 import { getStoredConfig } from '../configService';
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-// Define the navigation param list type
-type RootStackParamList = {
-    Login: undefined;
-    Home: undefined;
-    Profile: undefined;
-};
-
-type HomeScreenNavigationProp = NavigationProp<RootStackParamList, 'Home'>;
 
 const HomeScreen: React.FC = () => {
     const navigation = useNavigation() as any;
@@ -235,6 +226,16 @@ const HomeScreen: React.FC = () => {
                     >
                         <Ionicons name="person-outline" size={24} color="#2196F3" />
                         <Text style={styles.bottomSheetButtonText}>Account</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.bottomSheetButton}
+                        onPress={() => {
+                            navigation.navigate('Logs');
+                            closeBottomSheet();
+                        }}
+                    >
+                        <Ionicons name="list-outline" size={24} color="#2196F3" />
+                        <Text style={styles.bottomSheetButtonText}>Logs</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.bottomSheetButton}

@@ -2,12 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 type RootStackParamList = {
     Login: undefined;
     Home: undefined;
     Configuration: undefined;
+    Logs: undefined;
 };
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
@@ -24,12 +25,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => navigation.navigate('Configuration')}
-            >
-                <MaterialIcons name="settings" size={24} color="#444" />
-            </TouchableOpacity>
+            <View style={styles.headerIcons}>
+                <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={() => navigation.navigate('Logs')}
+                >
+                    <Ionicons name="list-outline" size={24} color="#444" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={() => navigation.navigate('Configuration')}
+                >
+                    <MaterialIcons name="settings" size={24} color="#444" />
+                </TouchableOpacity>
+            </View>
             <View style={styles.welcomeCard}>
                 <MaterialIcons name="lock" size={60} color="#4285F4" style={styles.lockIcon} />
                 <Text style={styles.title}>Welcome</Text>
@@ -99,10 +108,14 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    settingsButton: {
+    headerIcons: {
         position: 'absolute',
-        top: 40,
+        top: 50,
         right: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconButton: {
         padding: 10,
     },
     lockIcon: {

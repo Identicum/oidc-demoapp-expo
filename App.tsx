@@ -1,3 +1,6 @@
+// Import logging setup first - before any other imports to capture all console logs
+import './src/loggingSetup';
+
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,12 +13,14 @@ import { Toaster } from 'sonner-native';
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ConfigurationScreen from './src/screens/ConfigurationScreen';
+import LogsScreen from './src/screens/LogsScreen';
 
 // Define the stack navigator param list
 type RootStackParamList = {
     Login: undefined;
     Home: undefined;
     Configuration: undefined;
+    Logs: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -53,7 +58,14 @@ const Navigator: React.FC = () => {
         <Stack.Navigator>
             {isAuthenticated ? (
                 // Authenticated routes
-                <Stack.Screen name="Home" component={HomeScreen} />
+                <>
+                    <Stack.Screen name="Home" component={HomeScreen} />
+                    <Stack.Screen
+                        name="Logs"
+                        component={LogsScreen}
+                        options={{ title: 'Logs' }}
+                    />
+                </>
             ) : (
                 // Unauthenticated routes
                 <>
@@ -63,6 +75,11 @@ const Navigator: React.FC = () => {
                         options={{ headerShown: false }}
                     />
                     <Stack.Screen name="Configuration" component={ConfigurationScreen} />
+                    <Stack.Screen
+                        name="Logs"
+                        component={LogsScreen}
+                        options={{ title: 'Logs' }}
+                    />
                 </>
             )}
         </Stack.Navigator>

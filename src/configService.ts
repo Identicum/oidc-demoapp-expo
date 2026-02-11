@@ -35,6 +35,9 @@ export const getStoredConfig = async (): Promise<typeof defaultConfig> => {
         .map((s: string) => s.trim());
     }
     config = parsedConfig;
+    console.info('[Config] Using stored config');
+  } else {
+    console.info('[Config] Using default config');
   }
 
   return config;
@@ -59,6 +62,7 @@ export const getAuthConfig = async (): Promise<AuthConfiguration> => {
     usePKCE: true,
   } as unknown as AuthConfiguration;
 
+  console.info(`[Config] Auth config ready - issuer: ${authConfig.issuer}, clientId: ${authConfig.clientId}`);
   return authConfig;
 };
 
@@ -71,11 +75,14 @@ export const resetAuthConfig = async (): Promise<typeof defaultConfig> => {
     },
   };
 
+  console.info('[Config] Reset to default config');
   return config;
 };
 
 export const saveAuthConfig = async (
   config: typeof defaultConfig
 ): Promise<void> => {
+  console.info('[Config] Saving config to AsyncStorage');
   await AsyncStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+  console.info('[Config] Config saved successfully');
 };
