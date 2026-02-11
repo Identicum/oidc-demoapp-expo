@@ -201,20 +201,24 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_ACCESS_TOKEN }}
+
       - name: 🚀 Submit to Play Store
         if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
         run: |
-          eas submit -p android --path ./app-prod.aab --non-interactive
+          EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit -p android --path ./app-prod.aab --non-interactive
         env:
-          EXPO_ACCESS_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }}
           GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
 
       - name: 🚀 Submit to App Store
         if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'ios'
         run: |
-          eas submit -p ios --path ./app-ios-prod.ipa --non-interactive
+          EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit -p ios --path ./app-ios-prod.ipa --non-interactive
         env:
-          EXPO_ACCESS_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
