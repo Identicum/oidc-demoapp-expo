@@ -194,7 +194,7 @@ jobs:
           NODE_ENV: production
 
       - name: 📱 Build iOS Production
-        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod') && matrix.platform == 'ios'
+        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod' || github.event_name == 'push') && matrix.platform == 'ios'
         run: |
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
           eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
