@@ -185,6 +185,7 @@ jobs:
             echo "metro.config.js not found"
           fi
 
+
       - name: 📱 Build Production AAB
         if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'android-prod' || github.event_name == 'push') && matrix.platform == 'android'
         run: |
@@ -192,6 +193,7 @@ jobs:
           eas build --platform android --profile production --local --non-interactive --output=./app-prod.aab
         env:
           NODE_ENV: production
+          EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
 
       - name: 📱 Build iOS Production
         if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod' || github.event_name == 'push') && matrix.platform == 'ios'
@@ -200,12 +202,7 @@ jobs:
           eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
         env:
           NODE_ENV: production
-
-      - name: Setup Expo and EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_ACCESS_TOKEN }}
+          EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
 
       - name: 📥 Download Android artifact
         if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
@@ -223,8 +220,9 @@ jobs:
       - name: 🚀 Submit to Play Store
         if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
         run: |
-          EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit -p android --path ./app-prod.aab --non-interactive
+          eas submit -p android --path ./app-prod.aab --non-interactive
         env:
+          EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
           GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
 
       - name: 📥 Download iOS artifact
@@ -243,6 +241,7 @@ jobs:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
+          EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
 
       - name: 📦 Upload build artifacts to GitHub
         uses: actions/upload-artifact@v4
