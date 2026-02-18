@@ -1,9 +1,9 @@
 // Import logging setup first - before any other imports to capture all console logs
 import './src/loggingSetup';
 
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useEffect, useRef } from 'react';
+import { NavigationContainer, useNavigation, CommonActions } from '@react-navigation/native';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthProvider, useAuth, authEvents, SESSION_EXPIRED_EVENT } from './src/AuthContext';
 import { ActivityIndicator, View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaProvider } from "react-native-safe-area-context"
@@ -25,11 +25,45 @@ type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Main navigator component that handles auth state
+const AuthNavigationHandler: React.FC = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const { isLoading, isAuthenticated } = useAuth();
+    const prevAuthenticated = useRef<boolean | null>(null);
+
+    useEffect(() => {
+        if (prevAuthenticated.current === null) {
+            prevAuthenticated.current = isAuthenticated;
+            return;
+        }
+
+        if (prevAuthenticated.current === true && !isAuthenticated && !isLoading) {
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                })
+            );
+        }
+
+        if (prevAuthenticated.current === false && isAuthenticated && !isLoading) {
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                })
+            );
+        }
+
+        prevAuthenticated.current = isAuthenticated;
+    }, [isAuthenticated, isLoading, navigation]);
+
+    return null;
+};
+
+// Main navigator component
 const Navigator: React.FC = () => {
     const { isLoading, isAuthenticated } = useAuth();
 
-    // Listen for session expiration events
     useEffect(() => {
         const handleSessionExpired = (): void => {
             Alert.alert(
@@ -55,34 +89,35 @@ const Navigator: React.FC = () => {
     }
 
     return (
-        <Stack.Navigator>
-            {isAuthenticated ? (
-                // Authenticated routes
-                <>
-                    <Stack.Screen name="Home" component={HomeScreen} />
-                    <Stack.Screen
-                        name="Logs"
-                        component={LogsScreen}
-                        options={{ title: 'Logs' }}
-                    />
-                </>
-            ) : (
-                // Unauthenticated routes
-                <>
-                    <Stack.Screen
-                        name="Login"
-                        component={LoginScreen}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen name="Configuration" component={ConfigurationScreen} />
-                    <Stack.Screen
-                        name="Logs"
-                        component={LogsScreen}
-                        options={{ title: 'Logs' }}
-                    />
-                </>
-            )}
-        </Stack.Navigator>
+        <>
+            <AuthNavigationHandler />
+            <Stack.Navigator>
+                {isAuthenticated ? (
+                    <>
+                        <Stack.Screen name="Home" component={HomeScreen} />
+                        <Stack.Screen
+                            name="Logs"
+                            component={LogsScreen}
+                            options={{ title: 'Logs' }}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <Stack.Screen
+                            name="Login"
+                            component={LoginScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen name="Configuration" component={ConfigurationScreen} />
+                        <Stack.Screen
+                            name="Logs"
+                            component={LogsScreen}
+                            options={{ title: 'Logs' }}
+                        />
+                    </>
+                )}
+            </Stack.Navigator>
+        </>
     );
 };
 

@@ -2,7 +2,7 @@
   "expo": {
     "name": "oidc-demoapp-expo",
     "slug": "oidc-demoapp-expo",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "./assets/icon.png",
     "ios": {
       "bundleIdentifier": "com.identicum.demo.mobile",

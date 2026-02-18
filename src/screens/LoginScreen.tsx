@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
@@ -26,18 +26,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.headerIcons}>
-                <TouchableOpacity
+                <Pressable
                     style={styles.iconButton}
                     onPress={() => navigation.navigate('Logs')}
                 >
                     <Ionicons name="list-outline" size={24} color="#444" />
-                </TouchableOpacity>
-                <TouchableOpacity
+                </Pressable>
+                <Pressable
                     style={styles.iconButton}
                     onPress={() => navigation.navigate('Configuration')}
                 >
                     <MaterialIcons name="settings" size={24} color="#444" />
-                </TouchableOpacity>
+                </Pressable>
             </View>
             <View style={styles.welcomeCard}>
                 <MaterialIcons name="lock" size={60} color="#4285F4" style={styles.lockIcon} />
@@ -46,7 +46,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     Please authenticate using your credentials
                 </Text>
 
-                <TouchableOpacity
+                <Pressable
                     style={styles.loginButton}
                     onPress={login}
                     disabled={isLoading}
@@ -55,7 +55,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     <Text style={styles.buttonText}>
                         {isLoading ? 'Logging in...' : 'Login'}
                     </Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
         </View>
     );

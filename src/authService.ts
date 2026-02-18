@@ -11,6 +11,25 @@ import { AuthTokens, KeychainCredentials } from "./types";
 
 import { getAuthConfig } from "./configService";
 
+// Extended auth result type with additional properties from OIDC provider
+type AuthResultWithExpiry = {
+  accessToken: string;
+  idToken: string;
+  refreshToken?: string;
+  tokenType?: string;
+  scope?: string;
+  authorizationCode?: string;
+  accessTokenExpirationDate?: string | number | Date;
+  additionalParameters?: {
+    refresh_expires_in?: number;
+    [key: string]: string | number | undefined;
+  };
+  tokenAdditionalParameters?: {
+    refresh_expires_in?: number;
+    [key: string]: string | number | undefined;
+  };
+};
+
 // Key constants for secure storage
 const AUTH_CREDENTIALS = "auth.credentials";
 const TOKEN_EXPIRY_KEY = "auth.tokenExpiry";
@@ -23,21 +42,40 @@ export const KEYCHAIN_OPTIONS = {
   storage: Keychain.STORAGE_TYPE.AES_GCM,
 };
 
+// Helper to get expiration date from auth result
+const getAccessExpiry = (authResult: AuthResultWithExpiry): number => {
+  const expiry = authResult.accessTokenExpirationDate;
+  if (!expiry) {
+    return Date.now();
+  }
+  return new Date(expiry).getTime();
+};
+
+// Helper to get refresh token from auth result
+const getRefreshToken = (authResult: AuthResultWithExpiry): string => {
+  return authResult.refreshToken ?? "";
+};
+
+// Helper to get refresh token expiry from additional parameters
+const getRefreshExpiryMs = (authResult: AuthResultWithExpiry): number => {
+  const refreshExpiresRaw =
+    authResult.additionalParameters?.refresh_expires_in ??
+    authResult.tokenAdditionalParameters?.refresh_expires_in;
+  return Number(refreshExpiresRaw ?? 0) * 1000;
+};
+
 // Store tokens securely
 const storeTokens = async (
-  authResult: AuthorizeResult | RefreshResult,
+  authResult: AuthResultWithExpiry,
 ): Promise<boolean> => {
   console.info("[AuthService] Storing tokens from auth flow");
   try {
-    // Prepare credentials object with both tokens
     const credentials: KeychainCredentials = {
       accessToken: authResult.accessToken,
       idToken: authResult.idToken,
-      // refreshToken may be undefined|null on some flows; coerce to empty string
-      refreshToken: String((authResult as any).refreshToken ?? ""),
+      refreshToken: getRefreshToken(authResult),
     };
 
-    // Store both tokens in a single keychain entry
     console.info("[AuthService] Saving credentials to keychain");
     await Keychain.setGenericPassword(
       AUTH_CREDENTIALS,
@@ -46,14 +84,8 @@ const storeTokens = async (
     );
     console.info("[AuthService] Credentials saved successfully");
 
-    // Store expiration timestamps in AsyncStorage
-    const accessExpiry = new Date(
-      (authResult as any).accessTokenExpirationDate,
-    ).getTime();
-    const refreshExpiresRaw =
-      (authResult as any).additionalParameters?.refresh_expires_in ??
-      (authResult as any).tokenAdditionalParameters?.refresh_expires_in;
-    const refreshExpiry = Date.now() + Number(refreshExpiresRaw ?? 0) * 1000;
+    const accessExpiry = getAccessExpiry(authResult);
+    const refreshExpiry = getRefreshExpiryMs(authResult);
 
     console.info(
       `[AuthService] Access token expires at: ${new Date(accessExpiry).toISOString()}`,
@@ -164,27 +196,30 @@ const refreshTokens = async (): Promise<AuthTokens | null> => {
     const refreshedState = await refresh(config, { refreshToken });
     console.info("[AuthService] Token refresh response received");
 
-    // Store the new tokens
-    await storeTokens(refreshedState);
+    const authResult: AuthResultWithExpiry = {
+      accessToken: refreshedState.accessToken,
+      idToken: refreshedState.idToken,
+      refreshToken: refreshedState.refreshToken ?? undefined,
+      accessTokenExpirationDate: refreshedState.accessTokenExpirationDate,
+      additionalParameters: refreshedState.additionalParameters,
+    };
 
-    const accessExp = new Date(
-      (refreshedState as any).accessTokenExpirationDate,
-    ).getTime();
-    const refreshExpiresRaw =
-      (refreshedState as any).additionalParameters?.refresh_expires_in ??
-      (refreshedState as any).tokenAdditionalParameters?.refresh_expires_in;
+    await storeTokens(authResult);
+
+    const accessExp = getAccessExpiry(authResult);
+    const refreshExpiresRaw = getRefreshExpiryMs(authResult);
 
     console.info(
       `[AuthService] Token refresh complete - new expiry: ${new Date(accessExp).toISOString()}`,
     );
 
     return {
-      accessToken: refreshedState.accessToken,
+      accessToken: authResult.accessToken,
       accessTokenExpirationDate: accessExp,
-      idToken: refreshedState.idToken,
-      refreshToken: String((refreshedState as any).refreshToken ?? ""),
+      idToken: authResult.idToken,
+      refreshToken: getRefreshToken(authResult),
       refreshTokenExpirationDate:
-        Date.now() + Number(refreshExpiresRaw ?? 0) * 1000,
+        Date.now() + refreshExpiresRaw,
     };
   } catch (error) {
     console.warn("[AuthService] Token refresh failed:", error);
@@ -223,25 +258,29 @@ const login = async (): Promise<AuthTokens | null> => {
     const authState = await authorize(config);
     console.info("[AuthService] Authorization response received");
 
+    const authResult: AuthResultWithExpiry = {
+      accessToken: authState.accessToken,
+      idToken: authState.idToken,
+      refreshToken: authState.refreshToken ?? undefined,
+      accessTokenExpirationDate: authState.accessTokenExpirationDate,
+      tokenAdditionalParameters: authState.tokenAdditionalParameters,
+    };
+
     console.info("[AuthService] Storing tokens after successful auth");
-    const stored = await storeTokens(authState);
+    const stored = await storeTokens(authResult);
     if (stored) {
-      const accessExp = new Date(
-        (authState as any).accessTokenExpirationDate,
-      ).getTime();
-      const refreshExpiresRaw =
-        (authState as any).additionalParameters?.refresh_expires_in ??
-        (authState as any).tokenAdditionalParameters?.refresh_expires_in;
+      const accessExp = getAccessExpiry(authResult);
+      const refreshExpiresRaw = getRefreshExpiryMs(authResult);
       console.info(
         `[AuthService] Login successful - accessToken expires: ${new Date(accessExp).toISOString()}`,
       );
       return {
-        accessToken: authState.accessToken,
+        accessToken: authResult.accessToken,
         accessTokenExpirationDate: accessExp,
-        idToken: authState.idToken,
-        refreshToken: String((authState as any).refreshToken ?? ""),
+        idToken: authResult.idToken,
+        refreshToken: getRefreshToken(authResult),
         refreshTokenExpirationDate:
-          Date.now() + Number(refreshExpiresRaw ?? 0) * 1000,
+          Date.now() + refreshExpiresRaw,
       };
     }
     console.warn("[AuthService] Login failed - token storage unsuccessful");

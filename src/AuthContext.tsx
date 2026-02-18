@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, useRef } from 'react';
 import { AppState, AppStateStatus, DeviceEventEmitter } from 'react-native';
 import authService from './authService';
 import { AuthContextType, AuthTokens } from './types';
@@ -16,6 +16,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [authData, setAuthData] = useState<AuthTokens | null>(null);
+    const isAuthenticatedRef = useRef(isAuthenticated);
+
+    useEffect(() => {
+        isAuthenticatedRef.current = isAuthenticated;
+    }, [isAuthenticated]);
 
     // Initial authentication check
     useEffect(() => {
@@ -65,15 +70,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Logout function
     const logoutUser = async (): Promise<void> => {
         console.info('[AuthContext] Logout function called');
+        const idToken = authData?.idToken;
         setIsLoading(true);
         try {
-            await authService.logoutUser(authData!.idToken);
+            if (idToken) {
+                await authService.logoutUser(idToken);
+            }
             console.info('[AuthContext] Logout service completed, clearing state');
             setAuthData(null);
             setIsAuthenticated(false);
             console.info('[AuthContext] State updated - authenticated=false');
         } catch (error) {
             console.error('[AuthContext] Logout failed:', error);
+            setAuthData(null);
+            setIsAuthenticated(false);
         } finally {
             setIsLoading(false);
         }
@@ -84,30 +94,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const handleAppStateChange = async (nextAppState: AppStateStatus): Promise<void> => {
             console.info(`[AuthContext] App state changed: ${nextAppState}`);
 
-            // Only process when changing to 'active' state and only if it's different from previous state
             if (nextAppState === 'active') {
-                if (isAuthenticated) {
+                if (isAuthenticatedRef.current) {
                     console.info('[AuthContext] App came to foreground, validating session');
-                    // Request biometrics authentication every time app becomes active
-                    //await Keychain.getGenericPassword(KEYCHAIN_OPTIONS);
 
                     try {
-                        // Check if tokens are still valid
                         const tokens = await authService.getTokens();
-                        if (!tokens && isAuthenticated) {
-                            // Tokens are no longer valid, but we thought we were authenticated
+                        if (!tokens && isAuthenticatedRef.current) {
                             console.warn('[AuthContext] Session expired on foreground');
                             setIsAuthenticated(false);
                             setAuthData(null);
 
-                            // Dispatch event for expired session
                             authEvents.emit(SESSION_EXPIRED_EVENT);
                         } else {
                             console.info('[AuthContext] Session valid on foreground');
                         }
                     } catch (error) {
                         console.error('[AuthContext] Session validation failed:', error);
-                        // Handle session validation failure
                         authEvents.emit(SESSION_EXPIRED_EVENT);
                     }
                 }

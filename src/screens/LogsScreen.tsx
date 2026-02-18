@@ -4,7 +4,7 @@ import {
     Text,
     StyleSheet,
     FlatList,
-    TouchableOpacity,
+    Pressable,
     RefreshControl,
     Alert,
 } from 'react-native';
@@ -99,14 +99,14 @@ const LogsScreen: React.FC = () => {
         <View style={styles.header}>
             <Text style={styles.logCount}>{logs.length} log entries</Text>
             <View style={styles.headerActions}>
-                <TouchableOpacity style={styles.actionButton} onPress={handleCopyAllLogs}>
+                <Pressable style={styles.actionButton} onPress={handleCopyAllLogs}>
                     <Ionicons name="copy-outline" size={20} color="#2196F3" />
                     <Text style={styles.actionButtonText}>Copy</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.clearButton} onPress={handleClearLogs}>
+                </Pressable>
+                <Pressable style={styles.clearButton} onPress={handleClearLogs}>
                     <Ionicons name="trash-outline" size={20} color="#F44336" />
                     <Text style={styles.clearButtonText}>Clear</Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
         </View>
     );

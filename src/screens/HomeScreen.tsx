@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity,
+    Pressable,
     ScrollView,
     Platform,
     ActivityIndicator,
@@ -12,25 +12,38 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../AuthContext';
 import { getStoredConfig } from '../configService';
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+type RootStackParamList = {
+    Login: undefined;
+    Home: undefined;
+    Configuration: undefined;
+    Logs: undefined;
+};
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<
+    RootStackParamList,
+    'Home'
+>;
+
 const HomeScreen: React.FC = () => {
-    const navigation = useNavigation() as any;
+    const navigation = useNavigation<HomeScreenNavigationProp>();
     const { isAuthenticated, logoutUser, authData } = useAuth();
     const [loading, setLoading] = useState<boolean>(true);
     const bottomSheetRef = useRef<BottomSheet>(null);
 
-    const openBottomSheet = () => {
+    const openBottomSheet = useCallback(() => {
         bottomSheetRef.current?.expand();
-    };
+    }, []);
 
-    const closeBottomSheet = () => {
+    const closeBottomSheet = useCallback(() => {
         bottomSheetRef.current?.close();
-    };
+    }, []);
 
     // Redirect to login if not authenticated
     useEffect(() => {
@@ -40,12 +53,12 @@ const HomeScreen: React.FC = () => {
 
         navigation.setOptions({
             headerRight: () => (
-                <TouchableOpacity
+                <Pressable
                     style={styles.headerButton}
                     onPress={openBottomSheet}
                 >
                     <Ionicons name="person-circle" size={28} color="#2196F3" />
-                </TouchableOpacity>
+                </Pressable>
             )
         })
 
@@ -100,7 +113,7 @@ const HomeScreen: React.FC = () => {
                         <View style={styles.tokenHeaderRow}>
                             <Text style={styles.tokenTitle}>Access Token</Text>
                             <View style={styles.tokenActions}>
-                                <TouchableOpacity
+                                <Pressable
                                     style={styles.actionButton}
                                     onPress={() => {
                                         const token = authData?.accessToken || '';
@@ -108,8 +121,8 @@ const HomeScreen: React.FC = () => {
                                     }}
                                 >
                                     <Ionicons name="open-outline" size={20} color="#4CAF50" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
+                                </Pressable>
+                                <Pressable
                                     style={styles.actionButton}
                                     onPress={() => {
                                         Clipboard.setString(authData?.accessToken || '');
@@ -117,7 +130,7 @@ const HomeScreen: React.FC = () => {
                                     }}
                                 >
                                     <Ionicons name="copy-outline" size={20} color="#4CAF50" />
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
                         </View>
                         <View style={styles.tokenValueContainer}>
@@ -138,7 +151,7 @@ const HomeScreen: React.FC = () => {
                         <View style={styles.tokenHeaderRow}>
                             <Text style={styles.tokenTitle}>Refresh Token</Text>
                             <View style={styles.tokenActions}>
-                                <TouchableOpacity
+                                <Pressable
                                     style={styles.actionButton}
                                     onPress={() => {
                                         const token = authData?.refreshToken || '';
@@ -146,8 +159,8 @@ const HomeScreen: React.FC = () => {
                                     }}
                                 >
                                     <Ionicons name="open-outline" size={20} color="#4CAF50" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
+                                </Pressable>
+                                <Pressable
                                     style={styles.actionButton}
                                     onPress={() => {
                                         Clipboard.setString(authData?.refreshToken || '');
@@ -155,7 +168,7 @@ const HomeScreen: React.FC = () => {
                                     }}
                                 >
                                     <Ionicons name="copy-outline" size={20} color="#4CAF50" />
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
                         </View>
                         <View style={styles.tokenValueContainer}>
@@ -176,7 +189,7 @@ const HomeScreen: React.FC = () => {
                         <View style={styles.tokenHeaderRow}>
                             <Text style={styles.tokenTitle}>ID Token</Text>
                             <View style={styles.tokenActions}>
-                                <TouchableOpacity
+                                <Pressable
                                     style={styles.actionButton}
                                     onPress={() => {
                                         const token = authData?.idToken || '';
@@ -184,8 +197,8 @@ const HomeScreen: React.FC = () => {
                                     }}
                                 >
                                     <Ionicons name="open-outline" size={20} color="#4CAF50" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
+                                </Pressable>
+                                <Pressable
                                     style={styles.actionButton}
                                     onPress={() => {
                                         Clipboard.setString(authData?.idToken || '');
@@ -193,7 +206,7 @@ const HomeScreen: React.FC = () => {
                                     }}
                                 >
                                     <Ionicons name="copy-outline" size={20} color="#4CAF50" />
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
                         </View>
                         <View style={styles.tokenValueContainer}>
@@ -214,7 +227,7 @@ const HomeScreen: React.FC = () => {
                 enablePanDownToClose={true}
             >
                 <BottomSheetView style={styles.bottomSheetContent}>
-                    <TouchableOpacity
+                    <Pressable
                         style={styles.bottomSheetButton}
                         onPress={async () => {
                             const config = await getStoredConfig();
@@ -226,8 +239,8 @@ const HomeScreen: React.FC = () => {
                     >
                         <Ionicons name="person-outline" size={24} color="#2196F3" />
                         <Text style={styles.bottomSheetButtonText}>Account</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
+                    </Pressable>
+                    <Pressable
                         style={styles.bottomSheetButton}
                         onPress={() => {
                             navigation.navigate('Logs');
@@ -236,8 +249,8 @@ const HomeScreen: React.FC = () => {
                     >
                         <Ionicons name="list-outline" size={24} color="#2196F3" />
                         <Text style={styles.bottomSheetButtonText}>Logs</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
+                    </Pressable>
+                    <Pressable
                         style={styles.bottomSheetButton}
                         onPress={() => {
                             handleLogout();
@@ -246,8 +259,8 @@ const HomeScreen: React.FC = () => {
                     >
                         <Ionicons name="log-out-outline" size={24} color="#2196F3" />
                         <Text style={[styles.bottomSheetButtonText]}>Logout</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
+                    </Pressable>
+                    <Pressable
                         style={styles.bottomSheetButton}
                         onPress={async () => {
                             const config = await getStoredConfig();
@@ -269,7 +282,7 @@ const HomeScreen: React.FC = () => {
                     >
                         <Ionicons name="trash-outline" size={24} color="#F44336" />
                         <Text style={[styles.bottomSheetButtonText, { color: '#F44336' }]}>Delete Account</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </BottomSheetView>
             </BottomSheet>
         </GestureHandlerRootView>
