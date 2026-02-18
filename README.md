@@ -26,7 +26,7 @@ const config = {
 ## Pre-requisites
 
 - Android Studio / Xcode
-- yarn
+- pnpm
 - npx
 - Set ENV variables
   - export ANDROID_HOME=~/Library/Android/sdk
@@ -34,7 +34,7 @@ const config = {
 
 ## Steps
 
-yarn install
+pnpm install
 
 ### Android
 

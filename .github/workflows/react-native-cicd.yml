@@ -170,7 +170,6 @@ jobs:
       - name: 📦 Install dependencies
         run: |
           pnpm install --frozen-lockfile
-          pnpm add -g eas-cli@latest
 
       - name: 📱 Setup EAS build cache
         uses: actions/cache@v3
@@ -180,70 +179,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-eas-build-local-
 
-      - name: 🔄 Verify EAS CLI installation
-        run: |
-          echo "EAS CLI version:"
-          eas --version
-
-      - name: 📋 Fix package.json main entry
-        run: |
-          # Check if jq is installed, if not install it
-          if ! command -v jq &> /dev/null; then
-            echo "Installing jq..."
-            sudo apt-get update && sudo apt-get install -y jq
-          fi
-
-          # Fix the main entry in package.json
-          if [ -f ./package.json ]; then
-            # Create a backup
-            cp package.json package.json.bak
-            # Update the package.json
-            jq '.main = "node_modules/expo/AppEntry.js"' package.json > package.json.tmp && mv package.json.tmp package.json
-            echo "Updated package.json main entry"
-            cat package.json | grep "main"
-          else
-            echo "package.json not found"
-            exit 1
-          fi
-
-      - name: 📋 Update metro.config.js for SVG support
-        run: |
-          if [ -f ./metro.config.js ]; then
-            echo "Creating backup of metro.config.js"
-            cp ./metro.config.js ./metro.config.js.backup
-            echo "Updating metro.config.js to CommonJS format"
-            cat > ./metro.config.js << 'EOFMARKER'
-          /* eslint-disable @typescript-eslint/no-var-requires */
-          const { getDefaultConfig } = require('expo/metro-config');
-
-          const config = getDefaultConfig(__dirname);
-
-          const { transformer, resolver } = config;
-
-          config.transformer = {
-            ...transformer,
-            babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
-          };
-
-          config.resolver = {
-            ...resolver,
-            assetExts: resolver.assetExts.filter(ext => ext !== 'svg'),
-            sourceExts: [...resolver.sourceExts, 'svg'],
-          };
-
-          module.exports = config;
-          EOFMARKER
-            echo "metro.config.js updated to CommonJS format"
-          else
-            echo "metro.config.js not found"
-          fi
-
-
       - name: 📱 Build Production AAB
         if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'android-prod' || github.event_name == 'push') && matrix.platform == 'android'
         run: |
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-          eas build --platform android --profile production --local --non-interactive --output=./app-prod.aab
+          npx eas-cli@latest build --platform android --profile production --local --non-interactive --output=./app-prod.aab
         env:
           NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
@@ -252,7 +192,7 @@ jobs:
         if: github.event_name == 'push' && matrix.platform == 'android'
         run: |
           echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 -d > google-service-account.json
-          eas submit -p android --path ./app-prod.aab --non-interactive
+          npx eas-cli@latest submit -p android --path ./app-prod.aab --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
           GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
@@ -261,7 +201,7 @@ jobs:
         if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod' || github.event_name == 'push') && matrix.platform == 'ios'
         run: |
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-          eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
+          npx eas-cli@latest build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
         env:
           NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
@@ -269,7 +209,7 @@ jobs:
       - name: 🚀 Submit to App Store
         if: github.event_name == 'push' && matrix.platform == 'ios'
         run: |
-          EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit -p ios --path ./app-ios-prod.ipa --non-interactive
+          EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} npx eas-cli@latest submit -p ios --path ./app-ios-prod.ipa --non-interactive
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}

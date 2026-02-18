@@ -9,13 +9,13 @@ This is an Expo React Native application demonstrating OIDC (OpenID Connect) aut
 ### Running the App
 ```bash
 # Start Expo development server
-yarn start
+pnpm start
 
 # Run on Android
-yarn android
+pnpm android
 
 # Run on iOS
-yarn ios
+pnpm ios
 ```
 
 ### Environment Setup (Android)
@@ -202,9 +202,9 @@ src/
 
 ### Adding New Dependencies
 ```bash
-yarn add <package-name>
+pnpm add <package-name>
 ```
-Then rebuild with `yarn android` or `yarn ios`
+Then rebuild with `pnpm android` or `pnpm ios`
 
 ## Notes
 - This is an Expo managed workflow project
