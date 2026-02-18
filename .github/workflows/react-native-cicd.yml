@@ -17,7 +17,6 @@ on:
           - all
           - android-prod
           - ios-prod
-          - publish-stores
       platform:
         type: choice
         description: "Platform to build"
@@ -249,6 +248,15 @@ jobs:
           NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
 
+      - name: 🚀 Submit to Play Store
+        if: github.event_name == 'push' && matrix.platform == 'android'
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 -d > google-service-account.json
+          eas submit -p android --path ./app-prod.aab --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
+          GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+
       - name: 📱 Build iOS Production
         if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod' || github.event_name == 'push') && matrix.platform == 'ios'
         run: |
@@ -258,37 +266,8 @@ jobs:
           NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
 
-      - name: 📥 Download Android artifact
-        if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          workflow: react-native-cicd.yml
-          name: app-builds-android
-          path: .
-
-      - name: Decode and save Google service account key
-        if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
-        run: |
-          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 -d > google-service-account.json
-
-      - name: 🚀 Submit to Play Store
-        if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'android'
-        run: |
-          eas submit -p android --path ./app-prod.aab --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }} 
-          GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
-
-      - name: 📥 Download iOS artifact
-        if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'ios'
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          workflow: react-native-cicd.yml
-          name: app-builds-ios
-          path: .
-
       - name: 🚀 Submit to App Store
-        if: github.event.inputs.buildType == 'publish-stores' && matrix.platform == 'ios'
+        if: github.event_name == 'push' && matrix.platform == 'ios'
         run: |
           EXPO_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }} eas submit -p ios --path ./app-ios-prod.ipa --non-interactive
         env:
